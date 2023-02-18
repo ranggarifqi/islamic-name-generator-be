@@ -1,24 +1,31 @@
 package babyname
 
-type Gender int64
+import (
+	"time"
 
-const (
-	Ikhwan Gender = iota
-	Akhwat
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (g Gender) ToString() string {
-	switch g {
-	case Ikhwan:
-		return "Ikhwan"
-	case Akhwat:
-		return "Akhwat"
-	}
+type Gender string
 
-	return "Unknown"
-}
+const (
+	Ikhwan Gender = "Ikhwan"
+	Akhwat Gender = "Akhwat"
+)
+
+type NameType string
+
+const (
+	FirstName  NameType = "FirstName"
+	MiddleName NameType = "MiddleName"
+	LastName   NameType = "LastName"
+)
 
 type BabyName struct {
-	Name   string `bson:"name"`
-	Gender Gender `bson:"gender"`
+	ID        primitive.ObjectID `bson:"_id"`
+	Name      string             `bson:"name"`
+	Gender    Gender             `bson:"gender"`
+	NameTypes []NameType         `bson:"nameTypes"`
+	Meanings  []string           `bson:"meanings"`
+	CreatedAt time.Time          `bson:"createdAt"`
 }
