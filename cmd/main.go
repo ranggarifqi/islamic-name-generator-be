@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"github.com/ranggarifqi/islamic-name-generator-be/mongodb"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	_, err := mongodb.Connect()
+	if err != nil {
+		panic(err)
+	}
+
 }
