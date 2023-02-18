@@ -1,4 +1,4 @@
-package babyname
+package name
 
 import (
 	"time"
@@ -21,7 +21,7 @@ const (
 	LastName   NameType = "LastName"
 )
 
-type BabyName struct {
+type Name struct {
 	ID        primitive.ObjectID `bson:"_id"`
 	Name      string             `bson:"name"`
 	Gender    Gender             `bson:"gender"`
