@@ -21,6 +21,8 @@ func New(ctx context.Context, db *mongo.Database) INameRepository {
 	}
 }
 
+// TODO: Integration Test
+
 func (r *mongoRepository) getCollection() *mongo.Collection {
 	return r.db.Collection((COLLECTION_NAME))
 }
