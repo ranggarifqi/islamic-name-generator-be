@@ -14,7 +14,7 @@ type mongoRepository struct {
 	db  *mongo.Database
 }
 
-func New(ctx context.Context, db *mongo.Database) INameRepository {
+func NewMongoRepository(ctx context.Context, db *mongo.Database) INameRepository {
 	return &mongoRepository{
 		ctx,
 		db,
