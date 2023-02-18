@@ -14,9 +14,10 @@ type GenerateNameDTO struct {
 
 /** Repo Interfaces */
 type INameRepository interface {
-	findBy(filter FindByFilter) (*Name, error)
+	findBy(filter FindByFilter) (*[]Name, error)
+	findById(id string) (*Name, error)
 
-	create(payload *Name) (*Name, error)
+	create(payload Name) (*Name, error)
 }
 
 type FindByFilter struct {
