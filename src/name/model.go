@@ -7,16 +7,16 @@ import (
 type Gender string
 
 const (
-	Ikhwan Gender = "Ikhwan"
-	Akhwat Gender = "Akhwat"
+	IKHWAN Gender = "Ikhwan"
+	AKWHAT Gender = "Akhwat"
 )
 
 type NameType string
 
 const (
-	FirstName  NameType = "FirstName"
-	MiddleName NameType = "MiddleName"
-	LastName   NameType = "LastName"
+	FIRST_NAME  NameType = "FirstName"
+	MIDDLE_NAME NameType = "MiddleName"
+	LAST_NAME   NameType = "LastName"
 )
 
 type Name struct {
