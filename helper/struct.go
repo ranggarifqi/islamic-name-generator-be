@@ -1,28 +1,38 @@
 package helper
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
-
-	"github.com/fatih/structs"
 )
 
+/** Doesn't support nested struct*/
 func GetStructValue[R any](obj any, key string, fallback R) (*R, error) {
 	objVal := reflect.ValueOf(obj)
 
-	curStruct := objVal.Elem()
+	curStruct := objVal.Type()
+
 	if curStruct.Kind() != reflect.Struct {
 		return nil, errors.New("provided obj is not a struct")
 	}
 
-	m := structs.Map(obj)
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return nil, err
+	}
 
-	val := m[key]
+	var m map[string]interface{}
 
-	if reflect.ValueOf(&val).Elem().IsZero() {
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	val, ok := m[key].(R)
+
+	if !ok {
 		return &fallback, nil
 	}
 
-	return val.(*R), nil
-
+	return &val, nil
 }
