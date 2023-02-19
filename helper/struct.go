@@ -7,7 +7,7 @@ import (
 )
 
 /** Doesn't support nested struct*/
-func GetStructValue[R any](obj any, key string, fallback R) (*R, error) {
+func GetStructValue[R comparable](obj any, key string, fallback R) (*R, error) {
 	objVal := reflect.ValueOf(obj)
 
 	curStruct := objVal.Type()
@@ -21,7 +21,7 @@ func GetStructValue[R any](obj any, key string, fallback R) (*R, error) {
 		return nil, err
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 
 	err = json.Unmarshal(b, &m)
 	if err != nil {
