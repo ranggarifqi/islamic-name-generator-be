@@ -41,3 +41,21 @@ func (r *MockRepository) create(payload Name) (*Name, error) {
 
 	return &dummyName, nil
 }
+
+func (r *MockRepository) updateById(id string, payload Name) (*Name, error) {
+	args := r.Called(id, payload)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	dummyName := ConstructDummyName(Name{
+		ID:        id,
+		Name:      payload.Name,
+		Gender:    payload.Gender,
+		NameTypes: payload.NameTypes,
+		Meanings:  payload.Meanings,
+	})
+
+	return &dummyName, nil
+}

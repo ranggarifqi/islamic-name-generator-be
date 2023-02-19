@@ -76,3 +76,19 @@ func (r *mongoRepository) create(payload Name) (*Name, error) {
 
 	return newData, nil
 }
+
+func (r *mongoRepository) updateById(id string, payload Name) (*Name, error) {
+	collection := r.getCollection()
+
+	_, err := collection.UpdateByID(r.ctx, id, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedData, err := r.findById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedData, nil
+}

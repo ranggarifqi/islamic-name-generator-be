@@ -2,7 +2,7 @@ package name
 
 /** Service Interfaces */
 type INameService interface {
-	createName(payload *Name) (*Name, error)
+	upsertName(payload *Name) (*Name, error)
 	generateName(payload *GenerateNameDTO) (string, error)
 }
 
@@ -18,6 +18,8 @@ type INameRepository interface {
 	findById(id string) (*Name, error)
 
 	create(payload Name) (*Name, error)
+
+	updateById(id string, payload Name) (*Name, error)
 }
 
 type FindByFilter struct {
