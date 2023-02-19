@@ -30,8 +30,20 @@ func (r *mongoRepository) getCollection() *mongo.Collection {
 func (r *mongoRepository) findBy(filter FindByFilter) (*[]Name, error) {
 	collection := r.getCollection()
 
-	whereOpt := bson.M{
-		"gender": filter.Gender,
+	whereOpt := bson.M{}
+
+	if filter.Name != "" {
+		whereOpt["name"] = filter.Name
+	}
+
+	if filter.Gender != "" {
+		whereOpt["gender"] = filter.Gender
+	}
+
+	if len(filter.NameTypes) > 0 {
+		whereOpt["nameTypes"] = bson.M{
+			"$all": filter.NameTypes,
+		}
 	}
 
 	cursor, err := collection.Find(r.ctx, whereOpt)

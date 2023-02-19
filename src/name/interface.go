@@ -2,8 +2,8 @@ package name
 
 /** Service Interfaces */
 type INameService interface {
-	upsertName(payload *Name) (*Name, error)
-	generateName(payload *GenerateNameDTO) (string, error)
+	upsertName(payload Name) (*Name, error)
+	generateName(payload GenerateNameDTO) (string, error)
 }
 
 type GenerateNameDTO struct {
@@ -23,6 +23,7 @@ type INameRepository interface {
 }
 
 type FindByFilter struct {
+	Name      string
 	Gender    Gender
 	NameTypes []NameType
 }
