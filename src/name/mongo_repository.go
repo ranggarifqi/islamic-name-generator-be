@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -81,7 +82,9 @@ func (r *mongoRepository) Create(payload Name) (*Name, error) {
 		return nil, err
 	}
 
-	newData, err := r.FindById(insertResult.InsertedID.(string))
+	idStr := insertResult.InsertedID.(primitive.ObjectID).Hex()
+
+	newData, err := r.FindById(idStr)
 	if err != nil {
 		return nil, err
 	}
