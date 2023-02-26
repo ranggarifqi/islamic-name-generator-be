@@ -3,6 +3,7 @@ package name
 import (
 	"context"
 
+	"github.com/ranggarifqi/islamic-name-generator-be/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -67,7 +68,13 @@ func (r *mongoRepository) FindById(id string) (*Name, error) {
 
 	var result *Name
 
-	err := collection.FindOne(r.ctx, bson.M{"_id": id}).Decode(&result)
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = collection.FindOne(r.ctx, bson.M{"_id": objectID}).Decode(&result)
+
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +102,19 @@ func (r *mongoRepository) Create(payload Name) (*Name, error) {
 func (r *mongoRepository) UpdateById(id string, payload Name) (*Name, error) {
 	collection := r.getCollection()
 
-	_, err := collection.UpdateByID(r.ctx, id, payload)
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	bsonMap, err := mongodb.StructToBsonM(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = collection.UpdateByID(r.ctx, objectID, bson.M{
+		"$set": *bsonMap,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -21,9 +21,9 @@ const (
 
 type Name struct {
 	ID        string     `bson:"_id,omitempty"`
-	Name      string     `bson:"name"`
-	Gender    Gender     `bson:"gender"`
-	NameTypes []NameType `bson:"nameTypes"`
-	Meanings  []string   `bson:"meanings"`
-	CreatedAt time.Time  `bson:"createdAt"`
+	Name      string     `bson:"name,omitempty"`
+	Gender    Gender     `bson:"gender,omitempty"`
+	NameTypes []NameType `bson:"nameTypes,omitempty"`
+	Meanings  []string   `bson:"meanings,omitempty"`
+	CreatedAt time.Time  `bson:"createdAt,omitempty"`
 }
