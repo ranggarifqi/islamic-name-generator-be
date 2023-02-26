@@ -3,8 +3,6 @@
 package name
 
 import (
-	"fmt"
-
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -26,7 +24,6 @@ func (_m *MockINameRepository) create(payload Name) (*Name, error) {
 		r0 = rf(payload)
 	} else {
 		if ret.Get(0) != nil {
-			fmt.Printf("ret.Get(0) = %v", ret.Get(0))
 			temp := ret.Get(0).(Name)
 			r0 = &temp
 		}
