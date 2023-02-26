@@ -27,7 +27,7 @@ func (r *mongoRepository) getCollection() *mongo.Collection {
 	return r.db.Collection((COLLECTION_NAME))
 }
 
-func (r *mongoRepository) findBy(filter FindByFilter) (*[]Name, error) {
+func (r *mongoRepository) FindBy(filter FindByFilter) (*[]Name, error) {
 	collection := r.getCollection()
 
 	whereOpt := bson.M{}
@@ -61,7 +61,7 @@ func (r *mongoRepository) findBy(filter FindByFilter) (*[]Name, error) {
 	return &result, nil
 }
 
-func (r *mongoRepository) findById(id string) (*Name, error) {
+func (r *mongoRepository) FindById(id string) (*Name, error) {
 	collection := r.getCollection()
 
 	var result *Name
@@ -73,7 +73,7 @@ func (r *mongoRepository) findById(id string) (*Name, error) {
 	return result, nil
 }
 
-func (r *mongoRepository) create(payload Name) (*Name, error) {
+func (r *mongoRepository) Create(payload Name) (*Name, error) {
 	collection := r.getCollection()
 
 	insertResult, err := collection.InsertOne(r.ctx, payload)
@@ -81,7 +81,7 @@ func (r *mongoRepository) create(payload Name) (*Name, error) {
 		return nil, err
 	}
 
-	newData, err := r.findById(insertResult.InsertedID.(string))
+	newData, err := r.FindById(insertResult.InsertedID.(string))
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (r *mongoRepository) create(payload Name) (*Name, error) {
 	return newData, nil
 }
 
-func (r *mongoRepository) updateById(id string, payload Name) (*Name, error) {
+func (r *mongoRepository) UpdateById(id string, payload Name) (*Name, error) {
 	collection := r.getCollection()
 
 	_, err := collection.UpdateByID(r.ctx, id, payload)
@@ -97,7 +97,7 @@ func (r *mongoRepository) updateById(id string, payload Name) (*Name, error) {
 		return nil, err
 	}
 
-	updatedData, err := r.findById(id)
+	updatedData, err := r.FindById(id)
 	if err != nil {
 		return nil, err
 	}

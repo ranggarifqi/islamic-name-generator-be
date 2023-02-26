@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func Test_NameService_upsertName(t *testing.T) {
+func Test_NameService_UpsertName(t *testing.T) {
 	payload := Name{
 		Name:      "fulan",
 		Gender:    IKHWAN,
@@ -21,13 +21,13 @@ func Test_NameService_upsertName(t *testing.T) {
 
 		service := NewService(repository)
 
-		repository.On("findBy", FindByFilter{
+		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
 			Gender:    payload.Gender,
 			NameTypes: payload.NameTypes,
 		}).Return(nil, errors.New("some DB error when finding the data"))
 
-		result, err := service.upsertName(payload)
+		result, err := service.UpsertName(payload)
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)
@@ -39,7 +39,7 @@ func Test_NameService_upsertName(t *testing.T) {
 
 		service := NewService(repository)
 
-		repository.On("findBy", FindByFilter{
+		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
 			Gender:    payload.Gender,
 			NameTypes: payload.NameTypes,
@@ -47,11 +47,11 @@ func Test_NameService_upsertName(t *testing.T) {
 
 		expectedCreatedName := ConstructDummyName(payload)
 
-		repository.On("create", payload).Return(expectedCreatedName, nil)
+		repository.On("Create", payload).Return(expectedCreatedName, nil)
 
-		result, err := service.upsertName(payload)
+		result, err := service.UpsertName(payload)
 
-		assert.True(t, repository.AssertCalled(t, "create", payload))
+		repository.AssertCalled(t, "Create", payload)
 
 		assert.Nil(t, err)
 		assert.Equal(t, "someId", result.ID)
@@ -66,17 +66,17 @@ func Test_NameService_upsertName(t *testing.T) {
 
 		service := NewService(repository)
 
-		repository.On("findBy", FindByFilter{
+		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
 			Gender:    payload.Gender,
 			NameTypes: payload.NameTypes,
 		}).Return(&[]Name{}, nil)
 
-		repository.On("create", payload).Return(nil, errors.New("Some DB Error when creating document"))
+		repository.On("Create", payload).Return(nil, errors.New("Some DB Error when creating document"))
 
-		result, err := service.upsertName(payload)
+		result, err := service.UpsertName(payload)
 
-		assert.True(t, repository.AssertCalled(t, "create", payload))
+		repository.AssertCalled(t, "Create", payload)
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)
@@ -97,19 +97,19 @@ func Test_NameService_upsertName(t *testing.T) {
 			Meanings:  []string{"someone"},
 		})
 
-		repository.On("findBy", FindByFilter{
+		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
 			Gender:    payload.Gender,
 			NameTypes: payload.NameTypes,
 		}).Return(&[]Name{existingData}, nil)
 
-		repository.On("updateById", existingData.ID, mock.Anything).Return(&Name{
+		repository.On("UpdateById", existingData.ID, mock.Anything).Return(&Name{
 			ID: existingData.ID,
 		}, nil)
 
-		result, err := service.upsertName(payload)
+		result, err := service.UpsertName(payload)
 
-		repository.AssertCalled(t, "updateById", existingData.ID, Name{
+		repository.AssertCalled(t, "UpdateById", existingData.ID, Name{
 			NameTypes: []NameType{FIRST_NAME, MIDDLE_NAME},
 			Meanings:  []string{"dia", "someone"},
 		})
@@ -130,15 +130,15 @@ func Test_NameService_upsertName(t *testing.T) {
 			Meanings:  []string{"someone"},
 		})
 
-		repository.On("findBy", FindByFilter{
+		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
 			Gender:    payload.Gender,
 			NameTypes: payload.NameTypes,
 		}).Return(&[]Name{existingData}, nil)
 
-		repository.On("updateById", existingData.ID, mock.Anything).Return(nil, errors.New("Some Error when updating the document"))
+		repository.On("UpdateById", existingData.ID, mock.Anything).Return(nil, errors.New("Some Error when updating the document"))
 
-		result, err := service.upsertName(payload)
+		result, err := service.UpsertName(payload)
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)

@@ -12,7 +12,7 @@ type MockINameRepository struct {
 }
 
 // create provides a mock function with given fields: payload
-func (_m *MockINameRepository) create(payload Name) (*Name, error) {
+func (_m *MockINameRepository) Create(payload Name) (*Name, error) {
 	ret := _m.Called(payload)
 
 	var r0 *Name
@@ -64,7 +64,7 @@ func (_c *MockINameRepository_create_Call) RunAndReturn(run func(Name) (*Name, e
 }
 
 // findBy provides a mock function with given fields: filter
-func (_m *MockINameRepository) findBy(filter FindByFilter) (*[]Name, error) {
+func (_m *MockINameRepository) FindBy(filter FindByFilter) (*[]Name, error) {
 	ret := _m.Called(filter)
 
 	var r0 *[]Name
@@ -115,7 +115,7 @@ func (_c *MockINameRepository_findBy_Call) RunAndReturn(run func(FindByFilter) (
 }
 
 // findById provides a mock function with given fields: id
-func (_m *MockINameRepository) findById(id string) (*Name, error) {
+func (_m *MockINameRepository) FindById(id string) (*Name, error) {
 	ret := _m.Called(id)
 
 	var r0 *Name
@@ -166,7 +166,7 @@ func (_c *MockINameRepository_findById_Call) RunAndReturn(run func(string) (*Nam
 }
 
 // updateById provides a mock function with given fields: id, payload
-func (_m *MockINameRepository) updateById(id string, payload Name) (*Name, error) {
+func (_m *MockINameRepository) UpdateById(id string, payload Name) (*Name, error) {
 	ret := _m.Called(id, payload)
 
 	var r0 *Name

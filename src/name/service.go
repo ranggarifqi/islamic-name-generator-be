@@ -14,9 +14,9 @@ func NewService(nameRepository INameRepository) INameService {
 	}
 }
 
-func (s *service) upsertName(payload Name) (*Name, error) {
+func (s *service) UpsertName(payload Name) (*Name, error) {
 	// Find in collection that has the same name.
-	foundNames, err := s.nameRepository.findBy(
+	foundNames, err := s.nameRepository.FindBy(
 		FindByFilter{
 			Name:      payload.Name,
 			Gender:    payload.Gender,
@@ -29,7 +29,7 @@ func (s *service) upsertName(payload Name) (*Name, error) {
 
 	// If no data found, then just create it
 	if len(*foundNames) == 0 {
-		newName, err := s.nameRepository.create(payload)
+		newName, err := s.nameRepository.Create(payload)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +44,7 @@ func (s *service) upsertName(payload Name) (*Name, error) {
 	newNameTypes := append(name.NameTypes, payload.NameTypes...)
 	newNameTypes = helper.RemoveSliceDuplicate(newNameTypes)
 
-	updatedName, err := s.nameRepository.updateById(name.ID, Name{
+	updatedName, err := s.nameRepository.UpdateById(name.ID, Name{
 		NameTypes: newNameTypes,
 		Meanings:  newMeanings,
 	})
@@ -55,6 +55,6 @@ func (s *service) upsertName(payload Name) (*Name, error) {
 	return updatedName, nil
 }
 
-func (s *service) generateName(payload GenerateNameDTO) (string, error) {
+func (s *service) GenerateName(payload GenerateNameDTO) (string, error) {
 	panic("not implemented") // TODO: Implement
 }
