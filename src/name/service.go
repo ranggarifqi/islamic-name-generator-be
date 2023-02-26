@@ -1,8 +1,6 @@
 package name
 
 import (
-	"fmt"
-
 	"github.com/ranggarifqi/islamic-name-generator-be/helper"
 )
 
@@ -41,9 +39,7 @@ func (s *service) upsertName(payload Name) (*Name, error) {
 	name := (*foundNames)[0]
 
 	newMeanings := append(name.Meanings, payload.Meanings...)
-	fmt.Printf("newMeanings before remove dupe = %v\n", newMeanings)
 	newMeanings = helper.RemoveSliceDuplicate(newMeanings)
-	fmt.Printf("newMeanings after remove dupe = %v\n", newMeanings)
 
 	newNameTypes := append(name.NameTypes, payload.NameTypes...)
 	newNameTypes = helper.RemoveSliceDuplicate(newNameTypes)

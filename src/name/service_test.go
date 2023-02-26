@@ -109,13 +109,39 @@ func Test_NameService_upsertName(t *testing.T) {
 
 		result, err := service.upsertName(payload)
 
-		assert.True(t, repository.AssertCalled(t, "updateById", existingData.ID, Name{
-			NameTypes: []NameType{MIDDLE_NAME, FIRST_NAME},
-			Meanings:  []string{"someone", "dia"},
-		}))
+		repository.AssertCalled(t, "updateById", existingData.ID, Name{
+			NameTypes: []NameType{FIRST_NAME, MIDDLE_NAME},
+			Meanings:  []string{"dia", "someone"},
+		})
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
 	})
-	// t.Run("should return an error on unsucesful update", func(t *testing.T) {})
+	t.Run("should return an error on unsucesful update", func(t *testing.T) {
+		repository := &MockINameRepository{}
+
+		service := NewService(repository)
+
+		existingData := ConstructDummyName(Name{
+			ID:        "someId",
+			Name:      payload.Name,
+			Gender:    payload.Gender,
+			NameTypes: []NameType{MIDDLE_NAME},
+			Meanings:  []string{"someone"},
+		})
+
+		repository.On("findBy", FindByFilter{
+			Name:      payload.Name,
+			Gender:    payload.Gender,
+			NameTypes: payload.NameTypes,
+		}).Return(&[]Name{existingData}, nil)
+
+		repository.On("updateById", existingData.ID, mock.Anything).Return(nil, errors.New("Some Error when updating the document"))
+
+		result, err := service.upsertName(payload)
+
+		assert.Nil(t, result)
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "Some Error when updating the document")
+	})
 }
