@@ -1,6 +1,12 @@
 package helper
 
-func RemoveSliceDuplicate[T comparable](input []T) []T {
+import (
+	"sort"
+
+	"golang.org/x/exp/constraints"
+)
+
+func RemoveSliceDuplicate[T constraints.Ordered](input []T) []T {
 
 	mapping := make(map[T]bool)
 
@@ -15,6 +21,10 @@ func RemoveSliceDuplicate[T comparable](input []T) []T {
 	for key := range mapping {
 		result = append(result, key)
 	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i] < result[j]
+	})
 
 	return result
 }
