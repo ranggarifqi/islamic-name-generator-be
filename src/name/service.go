@@ -1,7 +1,6 @@
 package name
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/ranggarifqi/islamic-name-generator-be/helper"
@@ -105,8 +104,6 @@ func (s *Service) ChooseRandomizedName(nameArr []Name, exceptions []string) Name
 			return !lo.Contains(exceptions, item.Name)
 		})
 	}
-
-	fmt.Printf("tempArr = %v\n", tempArr)
 
 	arrLength := len(tempArr)
 	choosenIdx := s.randomizer.Intn(arrLength)
