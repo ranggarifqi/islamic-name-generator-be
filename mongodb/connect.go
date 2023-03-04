@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -11,7 +12,7 @@ import (
 func Connect() (*mongo.Client, context.Context, error) {
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
 	clientOptions := options.Client().
-		ApplyURI("mongodb+srv://ranggarifqipratama:yORjRqG4hGVlFafZ@islamic-name-generator.oadtrmk.mongodb.net/?retryWrites=true&w=majority").
+		ApplyURI(os.Getenv("DB_URL")).
 		SetServerAPIOptions(serverAPIOptions)
 
 	ctx := context.Background()

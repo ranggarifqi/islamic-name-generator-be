@@ -8,11 +8,17 @@ import (
 	"time"
 
 	"github.com/gocolly/colly"
+	"github.com/joho/godotenv"
 	"github.com/ranggarifqi/islamic-name-generator-be/mongodb"
 	"github.com/ranggarifqi/islamic-name-generator-be/src/name"
 )
 
 func main() {
+	err := godotenv.Load("../../../.env")
+	if err != nil {
+		panic(err)
+	}
+
 	mongoDBClient, ctx, err := mongodb.Connect()
 	if err != nil {
 		panic(err)
