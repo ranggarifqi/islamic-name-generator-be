@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 	"github.com/ranggarifqi/islamic-name-generator-be/mongodb"
@@ -47,12 +50,12 @@ func main() {
 			return
 		}
 
-		payload, err := constructPayload(h.Text)
+		_, err := constructPayload(h.Text)
 		if err != nil {
 			errorArr = append(errorArr, err)
 		}
 
-		fmt.Printf("payload = %v\n", payload)
+		// TODO: Exec service function
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -63,9 +66,7 @@ func main() {
 
 	c.Wait()
 
-	for _, err := range errorArr {
-		fmt.Printf("Error: %v\n", err)
-	}
+	writeErrorsIntoFile("./", errorArr)
 }
 
 func constructPayload(text string) (*name.Name, error) {
@@ -95,4 +96,25 @@ func constructPayload(text string) (*name.Name, error) {
 	}
 
 	return &payload, nil
+}
+
+func writeErrorsIntoFile(dirPath string, errors []error) {
+	timestamp := time.Now().Unix()
+	fileName := fmt.Sprintf("error_%v.log", timestamp)
+	filePath := path.Join(dirPath, fileName)
+
+	f, err := os.Create(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	for _, error := range errors {
+		_, err = f.WriteString(fmt.Sprintf("%v\n", error.Error()))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	f.Sync()
 }
