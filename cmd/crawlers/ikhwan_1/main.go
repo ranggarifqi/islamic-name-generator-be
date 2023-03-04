@@ -24,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	mongoDB := mongoDBClient.Database("islamic-name-generator")
+	mongoDB := mongoDBClient.Database(os.Getenv("DB_NAME"))
 
 	nameRepository := name.NewMongoRepository(ctx, mongoDB)
 	nameService := name.NewService(nameRepository)
