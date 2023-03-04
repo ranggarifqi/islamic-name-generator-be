@@ -152,6 +152,124 @@ func Test_NameService_UpsertName(t *testing.T) {
 	})
 }
 
+func Test_NameService_GenerateName(t *testing.T) {
+	randomizer := rand.New(rand.NewSource(1))
+
+	dto := GenerateNameDTO{
+		Gender:              IKHWAN,
+		ShouldUseMiddleName: false,
+		ShouldUseLastName:   true,
+	}
+
+	t.Run("should handle error on DB query error", func(t *testing.T) {
+		repository := &MockINameRepository{}
+
+		service := NewService(repository, randomizer)
+
+		repository.On("FindBy", mock.Anything).Return(nil, errors.New("some DB error when fetching the data"))
+
+		result, err := service.GenerateName(dto)
+
+		assert.EqualValues(t, map[NameType]Name{}, result)
+		assert.NotNil(t, err)
+
+		assert.EqualError(t, err, "some DB error when fetching the data")
+	})
+
+	t.Run("should generate first name & last name correctly", func(t *testing.T) {
+		repository := &MockINameRepository{}
+
+		service := NewService(repository, randomizer)
+
+		findByResults := []Name{
+			{
+				ID:        "firstName1",
+				Name:      "andi",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{FIRST_NAME},
+			},
+			{
+				ID:        "middleName1",
+				Name:      "putra",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{MIDDLE_NAME},
+			},
+			{
+				ID:        "lastName1",
+				Name:      "sulistyo",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{LAST_NAME},
+			},
+		}
+
+		repository.On("FindBy", mock.Anything).Return(&findByResults, nil)
+
+		result, err := service.GenerateName(dto)
+
+		assert.Nil(t, err)
+		assert.Equal(t, "andi", result[FIRST_NAME].Name)
+		assert.Equal(t, "sulistyo", result[LAST_NAME].Name)
+	})
+
+	t.Run("should not pick the same name if it's been picked previously", func(t *testing.T) {
+		repository := &MockINameRepository{}
+
+		service := NewService(repository, randomizer)
+
+		findByResults := []Name{
+			{
+				ID:        "firstName1",
+				Name:      "andi",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{FIRST_NAME, LAST_NAME},
+			},
+			{
+				ID:        "lastName1",
+				Name:      "sulistyo",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{LAST_NAME},
+			},
+		}
+
+		repository.On("FindBy", mock.Anything).Return(&findByResults, nil)
+
+		result, err := service.GenerateName(dto)
+
+		assert.Nil(t, err)
+		assert.Equal(t, "andi", result[FIRST_NAME].Name)
+		assert.NotEqual(t, "andi", result[LAST_NAME].Name)
+	})
+
+	t.Run("Should return empty map if no name with the given nameType exists", func(t *testing.T) {
+		repository := &MockINameRepository{}
+
+		service := NewService(repository, randomizer)
+
+		findByResults := []Name{
+			{
+				ID:        "firstName1",
+				Name:      "andi",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{MIDDLE_NAME},
+			},
+			{
+				ID:        "lastName1",
+				Name:      "sulistyo",
+				Gender:    IKHWAN,
+				NameTypes: []NameType{MIDDLE_NAME},
+			},
+		}
+
+		repository.On("FindBy", mock.Anything).Return(&findByResults, nil)
+
+		// Expect first name & last name being returned. But they don't exist.
+		result, err := service.GenerateName(dto)
+
+		assert.Nil(t, err)
+		assert.EqualValues(t, map[NameType]Name{}, result)
+	})
+}
+
 /** Helper Methods */
 func Test_NameService_ChooseRandomizedName(t *testing.T) {
 	namesArr := []Name{
