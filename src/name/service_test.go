@@ -245,20 +245,7 @@ func Test_NameService_GenerateName(t *testing.T) {
 
 		service := NewService(repository, randomizer)
 
-		findByResults := []Name{
-			{
-				ID:        "firstName1",
-				Name:      "andi",
-				Gender:    IKHWAN,
-				NameTypes: []NameType{MIDDLE_NAME},
-			},
-			{
-				ID:        "lastName1",
-				Name:      "sulistyo",
-				Gender:    IKHWAN,
-				NameTypes: []NameType{MIDDLE_NAME},
-			},
-		}
+		findByResults := []Name{}
 
 		repository.On("FindBy", mock.Anything).Return(&findByResults, nil)
 
