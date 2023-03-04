@@ -1,6 +1,6 @@
 package my_error
 
 type Error interface {
-	Error() string
+	error
 	GetStatusCode() int
 }
