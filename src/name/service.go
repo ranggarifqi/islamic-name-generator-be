@@ -1,23 +1,26 @@
 package name
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/ranggarifqi/islamic-name-generator-be/helper"
 	"github.com/samber/lo"
 )
 
-type service struct {
+type Service struct {
 	nameRepository INameRepository
+	randomizer     *rand.Rand
 }
 
-func NewService(nameRepository INameRepository) INameService {
-	return &service{
+func NewService(nameRepository INameRepository, randomizer *rand.Rand) INameService {
+	return &Service{
 		nameRepository: nameRepository,
+		randomizer:     randomizer,
 	}
 }
 
-func (s *service) UpsertName(payload Name) (*Name, error) {
+func (s *Service) UpsertName(payload Name) (*Name, error) {
 	// Find in collection that has the same name.
 	foundNames, err := s.nameRepository.FindBy(
 		FindByFilter{
@@ -58,7 +61,7 @@ func (s *service) UpsertName(payload Name) (*Name, error) {
 	return updatedName, nil
 }
 
-func (s *service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, error) {
+func (s *Service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, error) {
 	// Construct name types
 	nameTypes := ConstructNameTypes(payload.ShouldUseLastName, payload.ShouldUseMiddleName)
 
@@ -85,12 +88,30 @@ func (s *service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, erro
 		})
 
 		// Randomize First Name
-		choosenName := chooseRandomizedName(names, exceptionsStr)
+		choosenName := s.ChooseRandomizedName(names, exceptionsStr)
 
 		result[nameType] = choosenName
 	}
 
 	return result, nil
+}
+
+func (s *Service) ChooseRandomizedName(nameArr []Name, exceptions []string) Name {
+	tempArr := make([]Name, len(nameArr))
+	copy(tempArr, nameArr)
+
+	if len(exceptions) > 0 {
+		tempArr = lo.Filter(tempArr, func(item Name, index int) bool {
+			return !lo.Contains(exceptions, item.Name)
+		})
+	}
+
+	fmt.Printf("tempArr = %v\n", tempArr)
+
+	arrLength := len(tempArr)
+	choosenIdx := s.randomizer.Intn(arrLength)
+
+	return tempArr[choosenIdx]
 }
 
 /** Helper Funcs */
@@ -106,20 +127,4 @@ func ConstructNameTypes(shouldUseMiddleName bool, shouldUseLastName bool) []Name
 	}
 
 	return nameTypes
-}
-
-func chooseRandomizedName(nameArr []Name, exceptions []string) Name {
-	tempArr := make([]Name, len(nameArr))
-	copy(tempArr, nameArr)
-
-	if len(exceptions) > 0 {
-		tempArr = lo.Filter(tempArr, func(item Name, index int) bool {
-			return lo.Contains(exceptions, item.Name)
-		})
-	}
-
-	arrLength := len(tempArr)
-	choosenIdx := rand.Intn(arrLength)
-
-	return nameArr[choosenIdx]
 }

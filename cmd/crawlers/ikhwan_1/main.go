@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path"
 	"strings"
@@ -23,8 +24,10 @@ func main() {
 
 	mongoDB := mongoDBClient.Database(os.Getenv("DB_NAME"))
 
+	randomizer := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+
 	nameRepository := name.NewMongoRepository(ctx, mongoDB)
-	nameService := name.NewService(nameRepository)
+	nameService := name.NewService(nameRepository, randomizer)
 
 	// https://www.detik.com/sulsel/berita/d-6529117/1350-nama-bayi-laki-laki-islami-lengkap-beserta-artinya
 	c := colly.NewCollector(

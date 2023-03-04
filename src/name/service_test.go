@@ -3,6 +3,7 @@ package name
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"reflect"
 	"testing"
 
@@ -19,10 +20,12 @@ func Test_NameService_UpsertName(t *testing.T) {
 		Meanings:  []string{"dia", "someone"},
 	}
 
+	randomizer := rand.New(rand.NewSource(1))
+
 	t.Run("Should return early if there's an error when finding existing name", func(t *testing.T) {
 		repository := &MockINameRepository{}
 
-		service := NewService(repository)
+		service := NewService(repository, randomizer)
 
 		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
@@ -40,7 +43,7 @@ func Test_NameService_UpsertName(t *testing.T) {
 	t.Run("Should create the data directly if there's no existing name", func(t *testing.T) {
 		repository := &MockINameRepository{}
 
-		service := NewService(repository)
+		service := NewService(repository, randomizer)
 
 		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
@@ -67,7 +70,7 @@ func Test_NameService_UpsertName(t *testing.T) {
 	t.Run("Should return error on unsuccessful creation", func(t *testing.T) {
 		repository := &MockINameRepository{}
 
-		service := NewService(repository)
+		service := NewService(repository, randomizer)
 
 		repository.On("FindBy", FindByFilter{
 			Name:      payload.Name,
@@ -90,7 +93,7 @@ func Test_NameService_UpsertName(t *testing.T) {
 	t.Run("Should update existing data if found", func(t *testing.T) {
 		repository := &MockINameRepository{}
 
-		service := NewService(repository)
+		service := NewService(repository, randomizer)
 
 		existingData := ConstructDummyName(Name{
 			ID:        "someId",
@@ -123,7 +126,7 @@ func Test_NameService_UpsertName(t *testing.T) {
 	t.Run("should return an error on unsucesful update", func(t *testing.T) {
 		repository := &MockINameRepository{}
 
-		service := NewService(repository)
+		service := NewService(repository, randomizer)
 
 		existingData := ConstructDummyName(Name{
 			ID:        "someId",
@@ -149,6 +152,51 @@ func Test_NameService_UpsertName(t *testing.T) {
 	})
 }
 
+/** Helper Methods */
+func Test_NameService_ChooseRandomizedName(t *testing.T) {
+	namesArr := []Name{
+		{
+			Name: "anto",
+		},
+		{
+			Name: "budi",
+		},
+		{
+			Name: "cici",
+		},
+	}
+
+	repository := &MockINameRepository{}
+	randomizer := rand.New(rand.NewSource(1))
+
+	t.Run("Should randomize the returned name without exception", func(t *testing.T) {
+		service := &Service{
+			randomizer:     randomizer,
+			nameRepository: repository,
+		}
+
+		result := service.ChooseRandomizedName(namesArr, []string{})
+
+		isCorrect := lo.ContainsBy(namesArr, func(item Name) bool {
+			return item.Name == result.Name
+		})
+
+		assert.True(t, isCorrect)
+	})
+
+	t.Run("Should not return an excluded name", func(t *testing.T) {
+		service := &Service{
+			randomizer:     randomizer,
+			nameRepository: repository,
+		}
+
+		result := service.ChooseRandomizedName(namesArr, []string{"anto"})
+
+		assert.NotEqual(t, "anto", result.Name)
+	})
+}
+
+/** Helper funcs */
 func Test_ConstructNameTypes(t *testing.T) {
 	type TestCase struct {
 		shouldUseMiddleName bool
