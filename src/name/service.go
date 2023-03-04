@@ -61,7 +61,7 @@ func (s *Service) UpsertName(payload Name) (*Name, error) {
 }
 
 func (s *Service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, error) {
-	nameTypes := ConstructNameTypes(payload.ShouldUseLastName, payload.ShouldUseMiddleName)
+	nameTypes := ConstructNameTypes(payload.ShouldUseMiddleName, payload.ShouldUseLastName)
 
 	names, err := s.nameRepository.FindBy(FindByFilter{
 		Gender:    payload.Gender,
@@ -79,14 +79,16 @@ func (s *Service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, erro
 			return lo.Contains(item.NameTypes, nameType)
 		})
 
-		exceptions := lo.Values(result)
-		exceptionsStr := lo.Map(exceptions, func(item Name, idx int) string {
-			return item.Name
-		})
+		if len(names) > 0 {
+			exceptions := lo.Values(result)
+			exceptionsStr := lo.Map(exceptions, func(item Name, idx int) string {
+				return item.Name
+			})
 
-		choosenName := s.ChooseRandomizedName(names, exceptionsStr)
+			choosenName := s.ChooseRandomizedName(names, exceptionsStr)
 
-		result[nameType] = choosenName
+			result[nameType] = choosenName
+		}
 	}
 
 	return result, nil
