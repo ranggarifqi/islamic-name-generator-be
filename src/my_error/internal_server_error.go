@@ -1,4 +1,4 @@
-package errorHelper
+package my_error
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ type internalServerError struct {
 	errMessage string
 }
 
-func NewInternalServerError(errMessage string) error {
+func NewInternalServerError(errMessage string) MyError {
 	return &internalServerError{
 		statusCode: http.StatusInternalServerError,
 		errMessage: errMessage,
@@ -19,4 +19,8 @@ func NewInternalServerError(errMessage string) error {
 
 func (e *internalServerError) Error() string {
 	return fmt.Sprintf("Error %v: %v", e.statusCode, e.errMessage)
+}
+
+func (e *internalServerError) GetStatusCode() int {
+	return e.statusCode
 }

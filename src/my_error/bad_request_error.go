@@ -1,4 +1,4 @@
-package errorHelper
+package my_error
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ type badRequestError struct {
 	errMessage string
 }
 
-func NewBadRequestError(errMessage string) error {
+func NewBadRequestError(errMessage string) MyError {
 	return &badRequestError{
 		statusCode: http.StatusBadRequest,
 		errMessage: errMessage,
@@ -19,4 +19,8 @@ func NewBadRequestError(errMessage string) error {
 
 func (e *badRequestError) Error() string {
 	return fmt.Sprintf("Error %v: %v", e.statusCode, e.errMessage)
+}
+
+func (e *badRequestError) GetStatusCode() int {
+	return e.statusCode
 }
