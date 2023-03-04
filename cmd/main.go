@@ -34,8 +34,8 @@ func main() {
 	// TODO: Setup CORS by reading from .env
 
 	/* Setup Routing */
-	v1Group := e.Group("/v1")
-	v1.SetupHandler(v1Group, v1.V1Dependencies{
+	v1Route := e.Group("/v1")
+	v1.SetupHandler(v1Route, v1.V1Dependencies{
 		NameService: nameService,
 	})
 
