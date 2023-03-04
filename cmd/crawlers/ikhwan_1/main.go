@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gocolly/colly"
 	"github.com/ranggarifqi/islamic-name-generator-be/mongodb"
@@ -20,9 +21,7 @@ func main() {
 	mongoDB := mongoDBClient.Database("islamic-name-generator")
 
 	nameRepository := name.NewMongoRepository(ctx, mongoDB)
-	nameService := name.NewService(nameRepository)
-
-	fmt.Println(nameService)
+	_ = name.NewService(nameRepository)
 
 	// https://www.detik.com/sulsel/berita/d-6529117/1350-nama-bayi-laki-laki-islami-lengkap-beserta-artinya
 	c := colly.NewCollector(
@@ -33,6 +32,8 @@ func main() {
 		),
 	)
 
+	var errorArr []error
+
 	c.OnHTML("li", func(h *colly.HTMLElement) {
 		class := h.Attr("class")
 
@@ -40,12 +41,18 @@ func main() {
 			return
 		}
 
-		fmt.Printf("name & meaning found: %v\n", h.Text)
+		parent := h.DOM.Parent()
+		_, isParentClassExist := parent.Attr("class")
+		if isParentClassExist {
+			return
+		}
 
-		// Split the name & the meaning by character ":"
-		// Treat them all as FIRST_NAME, MIDDLE_NAME, and LAST_NAME
-		// lower case them all (name & meaning)
-		// Set gender = IKHWAN
+		payload, err := constructPayload(h.Text)
+		if err != nil {
+			errorArr = append(errorArr, err)
+		}
+
+		fmt.Printf("payload = %v\n", payload)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -56,17 +63,36 @@ func main() {
 
 	c.Wait()
 
-	// TODO: Crawl the page & get the names, meanings, etc
-	// result, err := nameService.UpsertName(name.Name{
-	// 	Name:      "Test 1",
-	// 	NameTypes: []name.NameType{name.FIRST_NAME},
-	// 	Gender:    name.IKHWAN,
-	// 	Meanings:  []string{"G ada", "testzzz", "wololo"},
-	// })
+	for _, err := range errorArr {
+		fmt.Printf("Error: %v\n", err)
+	}
+}
 
-	// if err != nil {
-	// 	panic(err)
-	// }
+func constructPayload(text string) (*name.Name, error) {
+	const gender name.Gender = name.IKHWAN
+	nameTypes := [3]name.NameType{name.FIRST_NAME, name.MIDDLE_NAME, name.LAST_NAME}
 
-	// fmt.Printf("result = %v\n", result)
+	trimmed := strings.Trim(text, " ")
+	splitted := strings.Split(trimmed, ":")
+
+	if len(splitted) != 2 {
+		return nil, fmt.Errorf("error constructing payload: invalid name & meanings: %v", text)
+	}
+
+	trimmedName := strings.Trim(splitted[0], " ")
+	trimmedMeaning := strings.Trim(splitted[1], " ")
+
+	lowerCasedName := strings.ToLower(trimmedName)
+	lowerCasedMeaning := strings.ToLower(trimmedMeaning)
+
+	meaningArr := strings.Split(lowerCasedMeaning, ", ")
+
+	payload := name.Name{
+		Name:      lowerCasedName,
+		NameTypes: nameTypes[:],
+		Gender:    gender,
+		Meanings:  meaningArr,
+	}
+
+	return &payload, nil
 }
