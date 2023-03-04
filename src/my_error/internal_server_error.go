@@ -10,7 +10,7 @@ type internalServerError struct {
 	errMessage string
 }
 
-func NewInternalServerError(errMessage string) MyError {
+func NewInternalServerError(errMessage string) Error {
 	return &internalServerError{
 		statusCode: http.StatusInternalServerError,
 		errMessage: errMessage,

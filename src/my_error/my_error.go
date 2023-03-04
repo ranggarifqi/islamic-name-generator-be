@@ -1,6 +1,6 @@
 package my_error
 
-type MyError interface {
+type Error interface {
 	Error() string
 	GetStatusCode() int
 }

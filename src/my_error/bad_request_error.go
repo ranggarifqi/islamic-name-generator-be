@@ -10,7 +10,7 @@ type badRequestError struct {
 	errMessage string
 }
 
-func NewBadRequestError(errMessage string) MyError {
+func NewBadRequestError(errMessage string) Error {
 	return &badRequestError{
 		statusCode: http.StatusBadRequest,
 		errMessage: errMessage,
