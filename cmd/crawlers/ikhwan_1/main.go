@@ -18,13 +18,10 @@ func main() {
 		panic(err)
 	}
 
-	defer cancel()
-	defer mongodb.Disconnect(mongoDBClient, ctx)
-
 	mongoDB := mongoDBClient.Database("islamic-name-generator")
 
 	nameRepository := name.NewMongoRepository(ctx, mongoDB)
-	_ = name.NewService(nameRepository)
+	nameService := name.NewService(nameRepository)
 
 	// https://www.detik.com/sulsel/berita/d-6529117/1350-nama-bayi-laki-laki-islami-lengkap-beserta-artinya
 	c := colly.NewCollector(
@@ -50,12 +47,18 @@ func main() {
 			return
 		}
 
-		_, err := constructPayload(h.Text)
+		payload, err := constructPayload(h.Text)
 		if err != nil {
 			errorArr = append(errorArr, err)
+			return
 		}
 
-		// TODO: Exec service function
+		insertedName, err := nameService.UpsertName(*payload)
+		if err != nil {
+			errorArr = append(errorArr, err)
+			return
+		}
+		fmt.Printf("%v upserted successfully; %v\n", insertedName.Name, *insertedName)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -66,7 +69,12 @@ func main() {
 
 	c.Wait()
 
-	writeErrorsIntoFile("./", errorArr)
+	defer cancel()
+	defer mongodb.Disconnect(mongoDBClient, ctx)
+
+	if len(errorArr) > 0 {
+		writeErrorsIntoFile("./", errorArr)
+	}
 }
 
 func constructPayload(text string) (*name.Name, error) {
