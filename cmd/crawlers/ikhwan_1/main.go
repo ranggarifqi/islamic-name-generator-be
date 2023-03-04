@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	mongoDBClient, ctx, cancel, err := mongodb.Connect()
+	mongoDBClient, ctx, err := mongodb.Connect()
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,6 @@ func main() {
 
 	c.Wait()
 
-	defer cancel()
 	defer mongodb.Disconnect(mongoDBClient, ctx)
 
 	if len(errorArr) > 0 {

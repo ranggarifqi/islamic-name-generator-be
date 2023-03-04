@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	_, _, _, err := mongodb.Connect()
+	_, _, err := mongodb.Connect()
 	if err != nil {
 		panic(err)
 	}
