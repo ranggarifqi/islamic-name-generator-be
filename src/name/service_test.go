@@ -2,8 +2,11 @@ package name
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -144,4 +147,48 @@ func Test_NameService_UpsertName(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, "Some Error when updating the document")
 	})
+}
+
+func Test_ConstructNameTypes(t *testing.T) {
+	type TestCase struct {
+		shouldUseMiddleName bool
+		shouldUseLastName   bool
+		expected            []NameType
+	}
+
+	testCases := []TestCase{
+		{
+			shouldUseMiddleName: false,
+			shouldUseLastName:   false,
+			expected:            []NameType{FIRST_NAME},
+		},
+		{
+			shouldUseMiddleName: true,
+			shouldUseLastName:   false,
+			expected:            []NameType{FIRST_NAME, MIDDLE_NAME},
+		},
+		{
+			shouldUseMiddleName: false,
+			shouldUseLastName:   true,
+			expected:            []NameType{FIRST_NAME, LAST_NAME},
+		},
+		{
+			shouldUseMiddleName: true,
+			shouldUseLastName:   true,
+			expected:            []NameType{FIRST_NAME, MIDDLE_NAME, LAST_NAME},
+		},
+	}
+
+	for i, tc := range testCases {
+		expectedStr := lo.Reduce(tc.expected, func(agg string, item NameType, idx int) string {
+			return fmt.Sprintf("%v, %v", agg, item)
+		}, "")
+
+		t.Run(fmt.Sprintf("(%v) should return (%v) if shouldUseMiddleName = %v & shouldUseLastName = %v", i, expectedStr, tc.shouldUseMiddleName, tc.shouldUseLastName), func(t *testing.T) {
+			result := ConstructNameTypes(tc.shouldUseMiddleName, tc.shouldUseLastName)
+			assert.Len(t, result, len(tc.expected))
+			fmt.Printf("expected: %v; result: %v\n", tc.expected, result)
+			assert.True(t, reflect.DeepEqual(tc.expected, result))
+		})
+	}
 }

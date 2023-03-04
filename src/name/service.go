@@ -60,7 +60,7 @@ func (s *service) UpsertName(payload Name) (*Name, error) {
 
 func (s *service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, error) {
 	// Construct name types
-	nameTypes := constructNameTypes(payload.ShouldUseLastName, payload.ShouldUseMiddleName)
+	nameTypes := ConstructNameTypes(payload.ShouldUseLastName, payload.ShouldUseMiddleName)
 
 	// Get By filter
 	names, err := s.nameRepository.FindBy(FindByFilter{
@@ -94,7 +94,7 @@ func (s *service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, erro
 }
 
 /** Helper Funcs */
-func constructNameTypes(shouldUseMiddleName bool, shouldUseLastName bool) []NameType {
+func ConstructNameTypes(shouldUseMiddleName bool, shouldUseLastName bool) []NameType {
 	nameTypes := []NameType{FIRST_NAME}
 
 	if shouldUseMiddleName {
