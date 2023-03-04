@@ -61,10 +61,8 @@ func (s *Service) UpsertName(payload Name) (*Name, error) {
 }
 
 func (s *Service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, error) {
-	// Construct name types
 	nameTypes := ConstructNameTypes(payload.ShouldUseLastName, payload.ShouldUseMiddleName)
 
-	// Get By filter
 	names, err := s.nameRepository.FindBy(FindByFilter{
 		Gender:    payload.Gender,
 		NameTypes: nameTypes,
@@ -76,7 +74,7 @@ func (s *Service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, erro
 	result := map[NameType]Name{}
 
 	for _, nameType := range nameTypes {
-		// Filter array, get FIRST_NAME
+		// Get names that has a certain `nameType`
 		names := lo.Filter(*names, func(item Name, idx int) bool {
 			return lo.Contains(item.NameTypes, nameType)
 		})
@@ -86,7 +84,6 @@ func (s *Service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, erro
 			return item.Name
 		})
 
-		// Randomize First Name
 		choosenName := s.ChooseRandomizedName(names, exceptionsStr)
 
 		result[nameType] = choosenName
