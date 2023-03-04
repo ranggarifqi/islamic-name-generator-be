@@ -6,7 +6,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/ranggarifqi/islamic-name-generator-be/controller"
 	v1 "github.com/ranggarifqi/islamic-name-generator-be/controller/v1"
 	"github.com/ranggarifqi/islamic-name-generator-be/helper"
 	"github.com/ranggarifqi/islamic-name-generator-be/mongodb"
@@ -30,6 +32,8 @@ func main() {
 	nameService := name.NewService(nameRepository, randomizer)
 
 	e := echo.New()
+
+	e.Validator = &controller.CustomValidator{Validator: validator.New()}
 
 	// TODO: Setup CORS by reading from .env
 

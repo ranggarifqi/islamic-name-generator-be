@@ -18,7 +18,7 @@ func SetupNameHandler(g *echo.Group, nameService name.INameService) {
 		nameService: nameService,
 	}
 
-	g.POST("/", h.Generate)
+	g.POST("/generate", h.Generate)
 }
 
 func (h *nameHandler) Generate(c echo.Context) error {
@@ -35,12 +35,12 @@ func (h *nameHandler) Generate(c echo.Context) error {
 
 	result, err := h.nameService.GenerateName(name.GenerateNameDTO{
 		Gender:              payload.Gender,
-		ShouldUseMiddleName: payload.ShouldUseMiddleName,
-		ShouldUseLastName:   payload.ShouldUseLastName,
+		ShouldUseMiddleName: *payload.ShouldUseMiddleName,
+		ShouldUseLastName:   *payload.ShouldUseLastName,
 	})
 	if err != nil {
 		return controller.ConstructApiError(err)
 	}
 
-	return c.JSONPretty(http.StatusOK, result, " ")
+	return c.JSON(http.StatusOK, result)
 }
