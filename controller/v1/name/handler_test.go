@@ -24,18 +24,18 @@ func Test_Generate(t *testing.T) {
 	e := echo.New()
 	e.Validator = &controller.CustomValidator{Validator: validator.New()}
 
-	payloadStr := `{"gender": "IKHWAN", "shouldUseMiddleName": false, "shouldUseLastName": true}`
-
-	req := httptest.NewRequest(http.MethodPost, "/v1/name/generate", strings.NewReader(payloadStr))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(req, rec)
-
-	h := &nameHandler{
-		nameService: nameService,
-	}
-
 	t.Run("Should generate name successfully", func(t *testing.T) {
+		payloadStr := `{"gender": "IKHWAN", "shouldUseMiddleName": false, "shouldUseLastName": true}`
+
+		req := httptest.NewRequest(http.MethodPost, "/v1/name/generate", strings.NewReader(payloadStr))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		ctx := e.NewContext(req, rec)
+
+		h := &nameHandler{
+			nameService: nameService,
+		}
+
 		findByResults := []name.Name{
 			{
 				ID:        "firstName1",
@@ -67,6 +67,28 @@ func Test_Generate(t *testing.T) {
 		expectedJSON := `{"FIRST_NAME":{"ID":"firstName1","Name":"andi","Gender":"IKHWAN","NameTypes":["FIRST_NAME"],"Meanings":null,"CreatedAt":"0001-01-01T00:00:00Z"},"LAST_NAME":{"ID":"lastName1","Name":"sulistyo","Gender":"IKHWAN","NameTypes":["LAST_NAME"],"Meanings":null,"CreatedAt":"0001-01-01T00:00:00Z"}}
 `
 
+		assert.Equal(t, expectedJSON, rec.Body.String())
+	})
+
+	t.Run("Should reject when gender is not provided", func(t *testing.T) {
+		payloadStr := `{"shouldUseMiddleName": false, "shouldUseLastName": true}`
+
+		req := httptest.NewRequest(http.MethodPost, "/v1/name/generate", strings.NewReader(payloadStr))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		ctx := e.NewContext(req, rec)
+
+		h := &nameHandler{
+			nameService: nameService,
+		}
+
+		err := h.Generate(ctx)
+
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+		expectedJSON := `{"message":"Error 400: code=400, message=Error 400: Key: 'GenerateNameDTO.Gender' Error:Field validation for 'Gender' failed on the 'required' tag"}
+`
 		assert.Equal(t, expectedJSON, rec.Body.String())
 	})
 }

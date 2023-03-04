@@ -25,12 +25,14 @@ func (h *nameHandler) Generate(c echo.Context) error {
 	payload := new(GenerateNameDTO)
 	err := c.Bind(payload)
 	if err != nil {
-		return controller.ConstructApiError(err)
+		apiError := controller.ConstructApiError(err)
+		return c.JSON(apiError.Code, apiError)
 	}
 
 	err = c.Validate(payload)
 	if err != nil {
-		return controller.ConstructApiError(my_error.NewBadRequestError(err.Error()))
+		apiError := controller.ConstructApiError(my_error.NewBadRequestError(err.Error()))
+		return c.JSON(apiError.Code, apiError)
 	}
 
 	result, err := h.nameService.GenerateName(name.GenerateNameDTO{
