@@ -1,7 +1,10 @@
 package name
 
 import (
+	"math/rand"
+
 	"github.com/ranggarifqi/islamic-name-generator-be/helper"
+	"github.com/samber/lo"
 )
 
 type service struct {
@@ -55,6 +58,68 @@ func (s *service) UpsertName(payload Name) (*Name, error) {
 	return updatedName, nil
 }
 
-func (s *service) GenerateName(payload GenerateNameDTO) (string, error) {
-	panic("not implemented") // TODO: Implement
+func (s *service) GenerateName(payload GenerateNameDTO) (map[NameType]Name, error) {
+	// Construct name types
+	nameTypes := constructNameTypes(payload.ShouldUseLastName, payload.ShouldUseMiddleName)
+
+	// Get By filter
+	names, err := s.nameRepository.FindBy(FindByFilter{
+		Gender:    payload.Gender,
+		NameTypes: nameTypes,
+	})
+	if err != nil {
+		return map[NameType]Name{}, err
+	}
+
+	result := map[NameType]Name{}
+
+	for _, nameType := range nameTypes {
+		// Filter array, get FIRST_NAME
+		names := lo.Filter(*names, func(item Name, idx int) bool {
+			return lo.Contains(item.NameTypes, nameType)
+		})
+
+		exceptions := lo.Values(result)
+		exceptionsStr := lo.Map(exceptions, func(item Name, idx int) string {
+			return item.Name
+		})
+
+		// Randomize First Name
+		choosenName := chooseRandomizedName(names, exceptionsStr)
+
+		result[nameType] = choosenName
+	}
+
+	return result, nil
+}
+
+/** Helper Funcs */
+func constructNameTypes(shouldUseMiddleName bool, shouldUseLastName bool) []NameType {
+	nameTypes := []NameType{FIRST_NAME}
+
+	if shouldUseMiddleName {
+		nameTypes = append(nameTypes, MIDDLE_NAME)
+	}
+
+	if shouldUseLastName {
+		nameTypes = append(nameTypes, LAST_NAME)
+	}
+
+	return nameTypes
+}
+
+func chooseRandomizedName(nameArr []Name, exceptions []string) Name {
+	tempArr := make([]Name, len(nameArr))
+	copy(tempArr, nameArr)
+
+	if len(exceptions) > 0 {
+		tempArr = lo.Filter(tempArr, func(item Name, index int) bool {
+			return lo.Contains(exceptions, item.Name)
+		})
+	}
+
+	arrLength := len(tempArr)
+	choosenIdx := rand.Intn(arrLength)
+
+	return nameArr[choosenIdx]
 }

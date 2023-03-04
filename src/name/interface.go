@@ -3,7 +3,7 @@ package name
 /** Service Interfaces */
 type INameService interface {
 	UpsertName(payload Name) (*Name, error)
-	GenerateName(payload GenerateNameDTO) (string, error)
+	GenerateName(payload GenerateNameDTO) (map[NameType]Name, error)
 }
 
 type GenerateNameDTO struct {
