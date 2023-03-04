@@ -187,7 +187,6 @@ func Test_ConstructNameTypes(t *testing.T) {
 		t.Run(fmt.Sprintf("(%v) should return (%v) if shouldUseMiddleName = %v & shouldUseLastName = %v", i, expectedStr, tc.shouldUseMiddleName, tc.shouldUseLastName), func(t *testing.T) {
 			result := ConstructNameTypes(tc.shouldUseMiddleName, tc.shouldUseLastName)
 			assert.Len(t, result, len(tc.expected))
-			fmt.Printf("expected: %v; result: %v\n", tc.expected, result)
 			assert.True(t, reflect.DeepEqual(tc.expected, result))
 		})
 	}
